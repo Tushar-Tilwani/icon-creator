@@ -29,7 +29,7 @@ const convertToCss = (coordinates: COORDTYPE) => {
       width: ${width}px;
       height: ${height}px;
       background: var(--vim-sprite-url) ${x}px ${y}px;
-    }`.replace(/(\r\n|\n|\r|\s)/gm, "");
+    }`;
     })
     .join("");
 };

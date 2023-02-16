@@ -4,13 +4,15 @@ type PROPS = {};
 const File: React.FC<PROPS> = (props) => {
   const [image, setImage] = useState<Blob>();
   const [createObjectURL, setCreateObjectURL] = useState<string>();
+  const [json, setJson] = useState<string>("");
+  const [imageId, setImageId] = useState<string>("");
 
   const uploadToClient = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      const i = event.target.files[0];
+      const file = event.target.files[0];
 
-      setImage(i);
-      setCreateObjectURL(URL.createObjectURL(i));
+      setImage(file);
+      setCreateObjectURL(URL.createObjectURL(file));
     }
   };
 
@@ -21,6 +23,7 @@ const File: React.FC<PROPS> = (props) => {
     }
     const body = new FormData();
     body.append("file", image);
+    body.append("id", imageId);
     try {
       await fetch("/api/file", {
         method: "POST",
@@ -29,26 +32,50 @@ const File: React.FC<PROPS> = (props) => {
       alert("done!");
       setImage(undefined);
       setCreateObjectURL(undefined);
+      setImageId("");
+      event.target.value = null;
     } catch (err: any) {
       console.log(err);
       alert(`${err.message}`);
     }
   };
 
+  const genSpirite = async (event: any) => {
+    const res = await fetch("/api/sprite");
+    const json = await res.json();
+    setJson(JSON.stringify(json));
+  };
+
   return (
     <div>
-      <div>
-        <img src={createObjectURL} />
-        <h4>Select Image</h4>
-        <input type="file" name="myImage" onChange={uploadToClient} />
-        <button
-          className="btn btn-primary"
-          type="submit"
-          onClick={uploadToServer}
-        >
-          Send to server
+      <section>
+        <form onSubmit={(e) => e.preventDefault()}>
+          <img src={createObjectURL} />
+          <h4>Select Image</h4>
+          <input type="file" name="file" onChange={uploadToClient} />
+          <input
+            type="text"
+            name="imageId"
+            onChange={(e) => setImageId(e.target.value)}
+            value={imageId}
+          ></input>
+          <button
+            className="btn btn-primary"
+            type="submit"
+            onClick={uploadToServer}
+          >
+            Upload
+          </button>
+        </form>
+      </section>
+      <section>
+        <button className="btn btn-primary" type="submit" onClick={genSpirite}>
+          Get a spirite image
         </button>
-      </div>
+      </section>
+      <aside>
+        <code>{json}</code>
+      </aside>
     </div>
   );
 };

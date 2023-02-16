@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { ChangeEvent, useState } from "react";
 import useSWR from "swr";
-import { URLS } from "./api/sprites";
+import { URLS } from "./api/data";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 

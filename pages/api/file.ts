@@ -13,8 +13,13 @@ const __dirname = path.join(process.cwd(), "db/icons");
 const post = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   const form = new formidable.IncomingForm();
   form.parse(req, async function (err, fields, files) {
-    await saveFile(files.file);
-    return res.status(201).send("");
+    console.log(fields.id, files);
+    try {
+      await saveFile(files.file);
+      return res.status(201).send("");
+    } catch (e: any) {
+      return res.status(500).send(e.message);
+    }
   });
 };
 
