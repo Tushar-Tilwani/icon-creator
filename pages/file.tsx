@@ -25,18 +25,17 @@ const File: React.FC<PROPS> = (props) => {
     body.append("file", image);
     body.append("id", imageId);
     try {
-      await fetch("/api/file", {
+      await fetch("/api/files3", {
         method: "POST",
         body,
       });
       alert("done!");
-      setImage(undefined);
-      setCreateObjectURL(undefined);
-      setImageId("");
+      // setImage(undefined);
+      // setCreateObjectURL(undefined);
+      // setImageId("");
       event.target.value = null;
     } catch (err: any) {
       console.log(err);
-      alert(`${err.message}`);
     }
   };
 
@@ -47,8 +46,8 @@ const File: React.FC<PROPS> = (props) => {
   };
 
   return (
-    <div>
-      <section>
+    <div role="document">
+      <article>
         <form onSubmit={(e) => e.preventDefault()}>
           <img src={createObjectURL} />
           <h4>Select Image</h4>
@@ -67,12 +66,12 @@ const File: React.FC<PROPS> = (props) => {
             Upload
           </button>
         </form>
-      </section>
-      <section>
+      </article>
+      <article>
         <button className="btn btn-primary" type="submit" onClick={genSpirite}>
           Get a spirite image
         </button>
-      </section>
+      </article>
       <aside>
         <code>{json}</code>
       </aside>

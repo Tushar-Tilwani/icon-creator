@@ -12,6 +12,7 @@ const __dirname = path.join(process.cwd(), "db/icons");
 
 const post = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   const form = new formidable.IncomingForm();
+  
   form.parse(req, async function (err, fields, files) {
     console.log(fields.id, files);
     try {
@@ -33,14 +34,13 @@ const saveFile = async (file: any) => {
 export default (req: NextApiRequest, res: NextApiResponse<any>) => {
   return new Promise(async (resolve, reject) => {
     if (req.method === "POST") {
-      try {
-        await post(req, res);
-        resolve("Done");
-      } catch (e) {
-        reject(e);
-      }
+      await post(req, res);
+      resolve("Done");
+      return;
     }
-    return req.method === "PUT"
+    req.method === "POST"
+      ? post(req, res)
+      : req.method === "PUT"
       ? console.log("PUT")
       : req.method === "DELETE"
       ? console.log("DELETE")

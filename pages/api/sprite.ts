@@ -54,7 +54,7 @@ export default async function handler(
         //   result.properties; // Object with metadata about spritesheet {width, height}
 
         fs.writeFile(__dirname + "/sprites.png", result.image);
-        res.status(200).send(convertToCss(coordinates));
+        res.status(200).json({ css: convertToCss(coordinates),  });
         resolve({ coordinates, properties });
       }
     );
