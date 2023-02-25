@@ -11,6 +11,12 @@ export default function Home() {
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) =>
     setSpriteImage(e.target.value);
 
+  const genSpirite = async (event: any) => {
+    const res = await fetch("/api/sprite");
+    const json = await res.json();
+    // setJson(JSON.stringify(json));
+  };
+
   return (
     <>
       <Head>

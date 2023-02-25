@@ -1,13 +1,11 @@
 import AWS from "aws-sdk";
+import { XMLBuilder, XMLParser } from "fast-xml-parser";
 import formidable from "formidable";
 import { promises as fs } from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import s3UploadStream from "s3-upload-stream";
 import { Readable } from "stream";
 import svg2Sprite from "svg2sprite";
-import { ElementNode, parse } from "svg-parser";
-import { get } from "lodash";
-import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 export const config = {
   api: {
@@ -59,43 +57,46 @@ const saveFile = async (file: formidable.File, id: string) => {
       ignoreAttributes: false,
     });
 
-    s3.getObject(
-      s3Options,
-      (err, data) => {
-        const svgContent = data?.Body?.toString("utf-8");
-        const sprite = svg2Sprite.collection({ inline: true });
-        if (svgContent) {
-          const obj = parser.parse(svgContent);
-          // console.log(builder.build(obj.svg.symbol));
-          const symbol = obj.svg.symbol;
-          const symbols = Array.isArray(symbol) ? symbol : [symbol];
-          symbols.forEach((sym: any) => {
-            const id = `${sym["@_id"]}`;
-            const content = `<svg>${builder
-              .build(sym)
-              .toString("utf-8")}</svg>`;
-            console.log("r", id, content);
-            sprite.add(id, content);
-          });
-        }
-        sprite.add(id, buffer.toString("utf-8"));
-        const svg = sprite.compile();
-        const svgStream = Readable.from(svg);
-        svgStream.pipe(upload);
-        console.log(svg);
-        // resolve(svgContent);
-      }
+    s3.getObject(s3Options, (err, data) => {
+      const svgContent = data?.Body?.toString("utf-8");
+      const sprite = svg2Sprite.collection({ inline: true });
+      if (svgContent) {
+        const obj = parser.parse(svgContent);
 
-      // const svg = sprite.compile();
-      // const parsedSvg = parse(svgContent);
-      // const svgSymbols = get(
-      //   parsedSvg,
-      //   "children[0].children"
-      // ) as unknown as ElementNode[];
-      // console.log(svgSymbols.map((value) => [value.properties?.id]));
-      // console.log(svg);
-      // resolve(svgContent);
-    );
+        const symbol = obj.svg.symbol;
+        const symbols = Array.isArray(symbol) ? symbol : [symbol];
+        symbols.forEach((sym: any) => {
+          const id = `${sym["@_id"]}`;
+          const viewBox = !!sym["@_viewBox"]
+            ? ` viewBox="${sym["@_viewBox"]}" `
+            : "";
+
+          const content = `<svg${viewBox}>${builder
+            .build(sym)
+            .toString("utf-8")}</svg>`;
+
+          sprite.add(id, content);
+        });
+      }
+      const uploadedSvgContent = buffer.toString("utf-8");
+      const uploadedSvg = parser.parse(uploadedSvgContent).svg;
+      const viewBox = !!uploadedSvg["@_viewBox"]
+        ? ` viewBox="${uploadedSvg["@_viewBox"]}"`
+        : "";
+      const uploadedSvgInnerContent = builder
+        .build(uploadedSvg)
+        .toString("utf-8");
+      // console.log(
+      //   'uploadedSvg.svg',
+      //   `<svg${viewBox}>${uploadedSvgInnerContent}</svg>`
+      // );
+
+      sprite.add(id, `<svg${viewBox}>${uploadedSvgInnerContent}</svg>`);
+      const svg = sprite.compile();
+      const svgStream = Readable.from(svg);
+      svgStream.pipe(upload);
+      console.log("finalSVG", svg);
+    });
 
     upload.on("error", function (error) {
       // console.log(error);
