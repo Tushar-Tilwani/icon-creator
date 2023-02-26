@@ -28,7 +28,10 @@ const Icons: React.FC<Props> = ({ forceQuery }) => {
       <div hidden dangerouslySetInnerHTML={{ __html: svgs }} ref={svgDivRef} />
       <article className="grid">
         {ids.map((id) => (
-          <Icon key={id} id={id} className="col-sm-6" />
+          <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+            <Icon key={id} id={id} />
+            <label>{id}</label>
+          </div>
         ))}
       </article>
     </>
