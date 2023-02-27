@@ -19,9 +19,9 @@ const IconForm: React.FC<Props> = ({
 }) => {
   return (
     <form onSubmit={(e) => e.preventDefault()}>
-      <img src={imageObjectURL} />
-      <h4>Select Image</h4>
+      <label htmlFor="file">Select Image</label>
       <input type="file" name="file" onChange={uploadToClient} />
+      <label htmlFor="imageId">Image Id</label>
       <input
         type="text"
         name="imageId"
@@ -36,6 +36,12 @@ const IconForm: React.FC<Props> = ({
       >
         Upload
       </button>
+      {imageObjectURL && (
+        <>
+          <h6>Image Preview</h6>
+          <img src={imageObjectURL} />
+        </>
+      )}
     </form>
   );
 };

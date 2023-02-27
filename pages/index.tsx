@@ -2,7 +2,7 @@ import IconForm from "@/components/IconForm";
 import Icons from "@/components/Icons";
 import { fetchSvgs } from "@/components/utils/fetchIcons";
 import { head } from "lodash";
-import { ChangeEvent, useReducer } from "react";
+import { ChangeEvent, MouseEvent, useReducer } from "react";
 
 type Props = { svgString: string };
 
@@ -30,7 +30,7 @@ const getInitialState = (initialState: Partial<State> = {}) =>
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
-    case "UPLOAD_START":
+    case "UPLOAD_START": {
       const file = action.data.file;
       if (!file) {
         return state;
@@ -41,12 +41,19 @@ const reducer = (state: State, action: Action) => {
         imageObjectURL: URL.createObjectURL(file),
         imageId: head(file.name?.split(".")) ?? "",
       };
-    case "CHANGE_ID":
+    }
+    case "CHANGE_ID": {
       const imageId = action.data?.id ?? state.imageId;
       return { ...state, imageId };
-    case "UPLOAD_FINISH":
+    }
+    case "UPLOAD_FINISH": {
       const svgString = action.data?.svg;
       return { ...getInitialState(), svgString };
+    }
+    case "ICON_CLICK": {
+      const imageId = action.data?.id ?? state.imageId;
+      return { ...state, imageId };
+    }
     default:
       return getInitialState();
   }
@@ -91,12 +98,20 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
     dispatch({ type: "CHANGE_ID", data: { id: e.target.value } });
   };
 
+  const handleIconClick = (e: MouseEvent<HTMLDivElement>) => {
+    dispatch({ type: "ICON_CLICK", data: { id: e.currentTarget.dataset.iconId } });
+  };
+
   return (
     <div role="document">
       <article>
-        <Icons svgString={svgString} />
+        <header>
+          <h4>Icons</h4>
+        </header>
+        <Icons svgString={svgString} handleIconClick={handleIconClick} />
       </article>
       <article>
+        <header>Change Icon</header>
         <IconForm
           handleIdChange={handleIdChange}
           uploadToClient={uploadToClient}
@@ -114,7 +129,7 @@ export async function getStaticProps() {
     props: {
       svgString,
     },
-    revalidate: 10,
+    revalidate: 100,
   };
 }
 
