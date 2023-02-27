@@ -2,17 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
 import { fetchSvgs } from "./utils/fetchIcons";
 
-type Props = { forceQuery?: string };
-const url =
-  "https://imagebucket30781.s3.us-west-2.amazonaws.com/icon/icons.svg";
-const Icons: React.FC<Props> = ({ forceQuery }) => {
+type Props = { svgString?: string };
+const Icons: React.FC<Props> = ({ svgString }) => {
   const [svgs, setSvgs] = useState<string>("");
   const [ids, setIds] = useState<string[]>([]);
   const svgDivRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    fetchSvgs(url).then(setSvgs);
-  }, [setSvgs, forceQuery]);
+    svgString && setSvgs(svgString);
+  }, [svgString]);
 
   useEffect(() => {
     if (!!svgDivRef.current) {
@@ -26,14 +23,14 @@ const Icons: React.FC<Props> = ({ forceQuery }) => {
   return (
     <>
       <div hidden dangerouslySetInnerHTML={{ __html: svgs }} ref={svgDivRef} />
-      <article className="grid">
+      <div className="grid">
         {ids.map((id) => (
-          <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2">
-            <Icon key={id} id={id} />
+          <div className="col-sm-6 col-md-4 col-lg-3 col-xl-2" key={id}>
+            <Icon id={id} />
             <label>{id}</label>
           </div>
         ))}
-      </article>
+      </div>
     </>
   );
 };
