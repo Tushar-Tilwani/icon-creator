@@ -39,7 +39,7 @@ const reducer = (state: State, action: Action) => {
         ...state,
         image: file,
         imageObjectURL: URL.createObjectURL(file),
-        imageId: state.imageId || head(file.name?.split(".")) || '',
+        imageId: state.imageId || head(file.name?.split(".")) || "",
       };
     }
     case "CHANGE_ID": {
@@ -99,7 +99,10 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
   };
 
   const handleIconClick = (e: MouseEvent<HTMLDivElement>) => {
-    dispatch({ type: "ICON_CLICK", data: { id: e.currentTarget.dataset.iconId } });
+    dispatch({
+      type: "ICON_CLICK",
+      data: { id: e.currentTarget.dataset.iconId },
+    });
   };
 
   return (
