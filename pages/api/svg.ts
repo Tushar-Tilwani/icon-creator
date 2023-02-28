@@ -1,11 +1,10 @@
+import { getSvgString } from "@/components/utils/svg-utils";
 import AWS from "aws-sdk";
-import { XMLBuilder, XMLParser } from "fast-xml-parser";
 import formidable from "formidable";
 import { promises as fs } from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import s3UploadStream from "s3-upload-stream";
 import { Readable } from "stream";
-import svg2Sprite from "svg2sprite";
 
 export const config = {
   api: {
@@ -89,44 +88,6 @@ const saveFile = async (file: formidable.File, id: string) => {
       resolve({ ...details, svg });
     });
   });
-};
-
-const getSvgString = (
-  incomingSvgContent: string,
-  incomingSvgId: string,
-  currentSvgContent?: string
-) => {
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-  });
-  const builder = new XMLBuilder({
-    ignoreAttributes: false,
-  });
-  const sprite = svg2Sprite.collection({ inline: true });
-  if (currentSvgContent) {
-    const obj = parser.parse(currentSvgContent);
-    const symbol = obj.svg.symbol;
-    const symbols = Array.isArray(symbol) ? symbol : [symbol];
-    symbols.forEach((sym: any) => {
-      const id = `${sym["@_id"]}`;
-      const viewBox = !!sym["@_viewBox"]
-        ? ` viewBox="${sym["@_viewBox"]}" `
-        : "";
-
-      const content = `<svg${viewBox}>${builder
-        .build(sym)
-        .toString("utf-8")}</svg>`;
-
-      sprite.add(id, content);
-    });
-  }
-  const uploadedSvg = parser.parse(incomingSvgContent).svg;
-  const viewBox = !!uploadedSvg["@_viewBox"]
-    ? ` viewBox="${uploadedSvg["@_viewBox"]}"`
-    : "";
-  const uploadedSvgInnerContent = builder.build(uploadedSvg).toString("utf-8");
-  sprite.add(incomingSvgId, `<svg${viewBox}>${uploadedSvgInnerContent}</svg>`);
-  return sprite.compile();
 };
 
 export default (req: NextApiRequest, res: NextApiResponse<any>) => {
