@@ -19,7 +19,7 @@ const post = async (req: any) => {
   return new Promise((resolve, reject) => {
     const form = new formidable.IncomingForm();
     form.parse(req, async (err, fields, files) => {
-      console.log(fields.id, files);
+      // console.log(fields.id, files);
       if (err) {
         reject(err);
         return;
@@ -41,6 +41,7 @@ const post = async (req: any) => {
 const saveFile = async (file: formidable.File, id: string) => {
   return new Promise(async (resolve, reject) => {
     const buffer = await fs.readFile(file.filepath);
+    const incomingSvg = buffer.toString("utf-8");
 
     const s3 = new AWS.S3({});
     const s3Options = {
@@ -50,59 +51,21 @@ const saveFile = async (file: formidable.File, id: string) => {
 
     const s3Stream = s3UploadStream(s3);
     const upload = s3Stream.upload({ ...s3Options, ContentType: "text/xml" });
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-    });
-    const builder = new XMLBuilder({
-      ignoreAttributes: false,
-    });
-    let svgContent = null;
+
+    let data;
     try {
-      const data = await s3.getObject(s3Options).promise();
-      svgContent = data?.Body?.toString("utf-8");
-    } catch (err) {}
-
-    // s3.getObject(s3Options, (err, data) => {
-    const sprite = svg2Sprite.collection({ inline: true });
-    if (svgContent) {
-      const obj = parser.parse(svgContent);
-      const symbol = obj.svg.symbol;
-      const symbols = Array.isArray(symbol) ? symbol : [symbol];
-      symbols.forEach((sym: any) => {
-        const id = `${sym["@_id"]}`;
-        const viewBox = !!sym["@_viewBox"]
-          ? ` viewBox="${sym["@_viewBox"]}" `
-          : "";
-
-        const content = `<svg${viewBox}>${builder
-          .build(sym)
-          .toString("utf-8")}</svg>`;
-
-        sprite.add(id, content);
-      });
+      data = await s3.getObject(s3Options).promise();
+    } catch (err) {
+      console.error(err);
+      reject(err);
     }
-    const uploadedSvgContent = buffer.toString("utf-8");
-    const uploadedSvg = parser.parse(uploadedSvgContent).svg;
-    const viewBox = !!uploadedSvg["@_viewBox"]
-      ? ` viewBox="${uploadedSvg["@_viewBox"]}"`
-      : "";
-    const uploadedSvgInnerContent = builder
-      .build(uploadedSvg)
-      .toString("utf-8");
-    // console.log(
-    //   'uploadedSvg.svg',
-    //   `<svg${viewBox}>${uploadedSvgInnerContent}</svg>`
-    // );
 
-    sprite.add(id, `<svg${viewBox}>${uploadedSvgInnerContent}</svg>`);
-    const svg = sprite.compile();
+    const currentSvg = data?.Body?.toString("utf-8");
+    const svg = getSvgString(incomingSvg, id, currentSvg);
     const svgStream = Readable.from(svg);
     svgStream.pipe(upload);
-    // console.log("finalSVG", svg);
-    // });
 
     upload.on("error", function (error) {
-      // console.log(error);
       reject(error);
     });
 
@@ -113,7 +76,7 @@ const saveFile = async (file: formidable.File, id: string) => {
          uploadedSize: 29671068 }
     */
     upload.on("part", function (details) {
-      //console.log(details);
+      console.log(details);
     });
 
     /* Handle upload completion. Example details object:
@@ -123,10 +86,47 @@ const saveFile = async (file: formidable.File, id: string) => {
          ETag: '"bf2acbedf84207d696c8da7dbb205b9f-5"' }
     */
     upload.on("uploaded", function (details) {
-      //console.log(details);
       resolve({ ...details, svg });
     });
   });
+};
+
+const getSvgString = (
+  incomingSvgContent: string,
+  incomingSvgId: string,
+  currentSvgContent?: string
+) => {
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+  });
+  const builder = new XMLBuilder({
+    ignoreAttributes: false,
+  });
+  const sprite = svg2Sprite.collection({ inline: true });
+  if (currentSvgContent) {
+    const obj = parser.parse(currentSvgContent);
+    const symbol = obj.svg.symbol;
+    const symbols = Array.isArray(symbol) ? symbol : [symbol];
+    symbols.forEach((sym: any) => {
+      const id = `${sym["@_id"]}`;
+      const viewBox = !!sym["@_viewBox"]
+        ? ` viewBox="${sym["@_viewBox"]}" `
+        : "";
+
+      const content = `<svg${viewBox}>${builder
+        .build(sym)
+        .toString("utf-8")}</svg>`;
+
+      sprite.add(id, content);
+    });
+  }
+  const uploadedSvg = parser.parse(incomingSvgContent).svg;
+  const viewBox = !!uploadedSvg["@_viewBox"]
+    ? ` viewBox="${uploadedSvg["@_viewBox"]}"`
+    : "";
+  const uploadedSvgInnerContent = builder.build(uploadedSvg).toString("utf-8");
+  sprite.add(incomingSvgId, `<svg${viewBox}>${uploadedSvgInnerContent}</svg>`);
+  return sprite.compile();
 };
 
 export default (req: NextApiRequest, res: NextApiResponse<any>) => {
