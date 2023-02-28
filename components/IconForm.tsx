@@ -1,4 +1,5 @@
 import { ChangeEvent } from "react";
+import Icon from "./Icon";
 
 type Props = {
   uploadToClient: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -40,6 +41,12 @@ const IconForm: React.FC<Props> = ({
         <>
           <h6>Image Preview</h6>
           <img src={imageObjectURL} />
+        </>
+      )}
+      {imageId && !imageObjectURL && (
+        <>
+          <h6>Image Preview</h6>
+          <Icon id={imageId} />
         </>
       )}
     </form>

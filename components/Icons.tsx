@@ -25,18 +25,16 @@ const Icons: React.FC<Props> = ({ svgString, handleIconClick }) => {
   return (
     <>
       <div hidden dangerouslySetInnerHTML={{ __html: svgs }} ref={svgDivRef} />
-      <div className="grid">
+      <div className="flex">
         {ids.map((id) => (
           <div
-            className="col-sm-6 col-md-4 col-lg-3 col-xl-2"
+            className="icon-container"
             key={id}
             data-icon-id={id}
             onClick={handleIconClick}
           >
             <Icon id={id} />
-            <label>
-              <code>{id}</code>
-            </label>
+            <code>{id}</code>
           </div>
         ))}
       </div>

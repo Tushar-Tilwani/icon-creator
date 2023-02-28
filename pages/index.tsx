@@ -39,7 +39,7 @@ const reducer = (state: State, action: Action) => {
         ...state,
         image: file,
         imageObjectURL: URL.createObjectURL(file),
-        imageId: head(file.name?.split(".")) ?? "",
+        imageId: state.imageId || head(file.name?.split(".")) || '',
       };
     }
     case "CHANGE_ID": {
@@ -106,7 +106,7 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
     <div role="document">
       <article>
         <header>
-          <h4>Icons</h4>
+          <h2 className="title">Icons</h2>
         </header>
         <Icons svgString={svgString} handleIconClick={handleIconClick} />
       </article>
