@@ -2,7 +2,7 @@ import IconForm from "@/components/IconForm";
 import Icons from "@/components/Icons";
 import { fetchSvgs } from "@/components/utils/fetchIcons";
 import { head } from "lodash";
-import { ChangeEvent, MouseEvent, useReducer } from "react";
+import { ChangeEvent, MouseEvent, useReducer, useRef } from "react";
 
 type Props = { svgString: string };
 
@@ -64,7 +64,11 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
     reducer,
     getInitialState({ svgString: initialSvgString })
   );
+
+  const formRef = useRef<HTMLElement>(null);
+
   const { image, imageId, svgString } = state;
+
   const uploadToClient = (event: ChangeEvent<HTMLInputElement>) => {
     const file = head(event?.target?.files);
     if (!!file) {
@@ -103,6 +107,11 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
       type: "ICON_CLICK",
       data: { id: e.currentTarget.dataset.iconId },
     });
+    formRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+      inline: "end",
+    });
   };
 
   return (
@@ -113,7 +122,7 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
         </header>
         <Icons svgString={svgString} handleIconClick={handleIconClick} />
       </article>
-      <article>
+      <article ref={formRef}>
         <header>Change Icon</header>
         <IconForm
           handleIdChange={handleIdChange}
