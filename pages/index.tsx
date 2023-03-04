@@ -139,13 +139,12 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
   );
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const svgString = await fetchSvgs();
   return {
     props: {
       svgString,
     },
-    revalidate: 100,
   };
 }
 
