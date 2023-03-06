@@ -12,7 +12,7 @@ export const config = {
   },
 };
 
-AWS.config.loadFromPath("./aws_config.json");
+// AWS.config.loadFromPath("./aws_config.json");
 
 const post = async (req: any) => {
   return new Promise((resolve, reject) => {
