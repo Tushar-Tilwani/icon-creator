@@ -12,6 +12,7 @@ type State = {
   imageObjectURL?: string;
   imageId: string;
   svgString?: string;
+  loading?: boolean;
 };
 
 type Action = {
@@ -27,11 +28,12 @@ const getInitialState = (initialState: Partial<State> = {}) =>
   ({
     ...initialState,
     imageId: "",
+    loading: false,
   } as State);
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
-    case "UPLOAD_START": {
+    case "UPLOAD_INITIATED": {
       const file = action.data.file;
       if (!file) {
         return state;
@@ -46,6 +48,9 @@ const reducer = (state: State, action: Action) => {
     case "CHANGE_ID": {
       const imageId = action.data?.id ?? state.imageId;
       return { ...state, imageId };
+    }
+    case "UPLOAD_START": {
+      return { ...state, loading: true };
     }
     case "UPLOAD_FINISH": {
       const svgString = action.data?.svg;
@@ -73,7 +78,7 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
   const uploadToClient = (event: ChangeEvent<HTMLInputElement>) => {
     const file = head(event?.target?.files);
     if (!!file) {
-      dispatch({ type: "UPLOAD_START", data: { file } });
+      dispatch({ type: "UPLOAD_INITIATED", data: { file } });
     }
   };
 
@@ -82,10 +87,12 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
       alert("Select a file!");
       return;
     }
+
     const body = new FormData();
     body.append("file", image);
     body.append("id", imageId);
     try {
+      dispatch({ type: "UPLOAD_START", data: {} });
       const response = await fetch("/api/svg", {
         method: "POST",
         body,

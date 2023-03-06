@@ -8,6 +8,7 @@ type Props = {
   image?: Blob;
   imageObjectURL?: string;
   imageId: string;
+  loading?: boolean;
 };
 
 const IconForm: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const IconForm: React.FC<Props> = ({
   image,
   imageObjectURL,
   imageId,
+  loading,
 }) => {
   return (
     <form onSubmit={(e) => e.preventDefault()}>
@@ -32,8 +34,9 @@ const IconForm: React.FC<Props> = ({
       <button
         className="btn btn-primary"
         type="submit"
-        disabled={!image}
+        disabled={!image || !!loading}
         onClick={uploadToServer}
+        aria-busy={loading}
       >
         Upload
       </button>
