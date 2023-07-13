@@ -1,5 +1,6 @@
 import { MouseEvent, useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
+import IconWithInfo from "./IconWithInfo";
 
 type Props = {
   svgString?: string;
@@ -27,15 +28,7 @@ const Icons: React.FC<Props> = ({ svgString, handleIconClick }) => {
       <div hidden dangerouslySetInnerHTML={{ __html: svgs }} ref={svgDivRef} />
       <div className="flex">
         {ids.map((id) => (
-          <div
-            className="icon-container"
-            key={id}
-            data-icon-id={id}
-            onClick={handleIconClick}
-          >
-            <Icon id={id} />
-            <code>{id}</code>
-          </div>
+          <IconWithInfo id={id} key={id} handleIconClick={handleIconClick} />
         ))}
       </div>
     </>

@@ -10,10 +10,16 @@
   margin: 10px;
 }
 
+.icon-container * {
+  cursor: pointer;
+}
+
 .icon-container code {
   margin: 10px 0;
   display: block;
+  cursor: pointer;
 }
+
 
 .flex {
   display: flex;

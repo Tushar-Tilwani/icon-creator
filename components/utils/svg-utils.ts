@@ -39,4 +39,12 @@ const getSvgString = (
   return sprite.compile();
 };
 
-export { getSvgString };
+const extractName = (id: string) => {
+  const [, ...names] = id.split("-");
+  const iconName = names[names.length - 1].toLocaleUpperCase();
+  //Remove last char
+  const componentName = names.slice(0, -1).join(" ").toLocaleUpperCase();
+  return { iconName, componentName };
+};
+
+export { getSvgString, extractName };
