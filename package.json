@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ebay/skin": "16.4.0",
     "@next/font": "13.1.6",
     "@picocss/pico": "^1.5.7",
     "@types/file-saver": "^2.0.5",
@@ -41,5 +42,9 @@
     "svg2sprite": "^2.0.1",
     "swr": "^2.0.3",
     "typescript": "4.9.5"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^8.0.1",
+    "raw-loader": "^4.0.2"
   }
 }

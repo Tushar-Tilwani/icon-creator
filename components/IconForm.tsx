@@ -1,10 +1,13 @@
-import { ChangeEvent } from "react";
-import Icon from "./Icon";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import EbayIconsSelect from "./EbayIconsSelect";
+import IconPreview from "./IconPreview";
+import { head } from "lodash";
+import { idToUseBlob } from "./utils/svg-utils";
 
 type Props = {
-  uploadToClient: (event: ChangeEvent<HTMLInputElement>) => void;
-  uploadToServer: () => void;
-  handleIdChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  uploadToClient: (file: Blob) => void;
+  uploadToServer: (id?: string) => void;
+  handleIdChange: (id?: string) => void;
   image?: Blob;
   imageObjectURL?: string;
   imageId: string;
@@ -14,44 +17,56 @@ type Props = {
 const IconForm: React.FC<Props> = ({
   uploadToClient,
   uploadToServer,
-  handleIdChange,
   image,
-  imageObjectURL,
-  imageId,
+  imageId: baseImageId,
   loading,
 }) => {
+  const [imageId, setImageId] = useState<string | undefined>(baseImageId);
+
+  useEffect(() => {
+    setImageId(baseImageId);
+  }, [baseImageId]);
+
+  const uploadEbayIdToClient = useCallback(
+    (id?: string) => {
+      if (!id) {
+        return;
+      }
+      uploadToClient(idToUseBlob(id));
+    },
+    [uploadToClient, setImageId]
+  );
+
   return (
     <form onSubmit={(e) => e.preventDefault()}>
+      <EbayIconsSelect onChange={uploadEbayIdToClient} />
       <label htmlFor="file">Select Image</label>
-      <input type="file" name="file" onChange={uploadToClient} />
+      <input
+        type="file"
+        name="file"
+        onChange={(event) => {
+          uploadToClient(head(event?.target?.files) as Blob);
+        }}
+      />
       <label htmlFor="imageId">Image Id</label>
       <input
         type="text"
         name="imageId"
-        onChange={handleIdChange}
+        onChange={(e) => setImageId(e.target.value)}
         value={imageId}
       />
       <button
         className="btn btn-primary"
         type="submit"
         disabled={!image || !!loading}
-        onClick={uploadToServer}
+        onClick={() => {
+          uploadToServer(imageId);
+        }}
         aria-busy={loading}
       >
         Upload
       </button>
-      {imageObjectURL && (
-        <>
-          <h6>Image Preview</h6>
-          <img src={imageObjectURL} />
-        </>
-      )}
-      {imageId && !imageObjectURL && (
-        <>
-          <h6>Image Preview</h6>
-          <Icon id={imageId} />
-        </>
-      )}
+      <IconPreview file={image} imageId={baseImageId} />
     </form>
   );
 };

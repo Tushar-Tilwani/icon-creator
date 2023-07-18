@@ -3,7 +3,7 @@ import IconForm from "@/components/IconForm";
 import Icons from "@/components/Icons";
 import { fetchSvgs } from "@/components/utils/fetchIcons";
 import { head } from "lodash";
-import { ChangeEvent, MouseEvent, useReducer, useRef } from "react";
+import { MouseEvent, useReducer, useRef } from "react";
 
 type Props = { svgString: string };
 
@@ -18,7 +18,7 @@ type State = {
 type Action = {
   type: string;
   data: {
-    file?: File;
+    file?: Blob;
     id?: string;
     svg?: string;
   };
@@ -50,7 +50,8 @@ const reducer = (state: State, action: Action) => {
       return { ...state, imageId };
     }
     case "UPLOAD_START": {
-      return { ...state, loading: true };
+      const imageId = action.data?.id ?? state.imageId;
+      return { ...state, imageId, loading: true };
     }
     case "UPLOAD_FINISH": {
       const svgString = action.data?.svg;
@@ -75,14 +76,13 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
 
   const { image, imageId, svgString } = state;
 
-  const uploadToClient = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = head(event?.target?.files);
+  const uploadToClient = (file: Blob) => {
     if (!!file) {
       dispatch({ type: "UPLOAD_INITIATED", data: { file } });
     }
   };
 
-  const uploadToServer = async () => {
+  const uploadToServer = async (id?: string) => {
     if (!image) {
       alert("Select a file!");
       return;
@@ -90,9 +90,9 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
 
     const body = new FormData();
     body.append("file", image);
-    body.append("id", imageId);
+    body.append("id", id || imageId);
     try {
-      dispatch({ type: "UPLOAD_START", data: {} });
+      dispatch({ type: "UPLOAD_START", data: { id } });
       const response = await fetch("/api/svg", {
         method: "POST",
         body,
@@ -106,8 +106,8 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
     }
   };
 
-  const handleIdChange = (e: ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: "CHANGE_ID", data: { id: e.target.value } });
+  const handleIdChange = (id?: string) => {
+    dispatch({ type: "CHANGE_ID", data: { id } });
   };
 
   const handleIconClick = (e: MouseEvent<HTMLDivElement>) => {
@@ -124,15 +124,6 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
 
   return (
     <div role="document">
-      <article>
-        <header className="header">
-          <h2 className="title">Icons</h2>
-          <aside>
-            <DownloadSvg />
-          </aside>
-        </header>
-        <Icons svgString={svgString} handleIconClick={handleIconClick} />
-      </article>
       <article ref={formRef}>
         <header>Change Icon</header>
         <IconForm
@@ -141,6 +132,15 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
           uploadToServer={uploadToServer}
           {...state}
         />
+      </article>
+      <article>
+        <header className="header">
+          <h2 className="title">Icons</h2>
+          <aside>
+            <DownloadSvg />
+          </aside>
+        </header>
+        <Icons svgString={svgString} handleIconClick={handleIconClick} />
       </article>
     </div>
   );

@@ -47,4 +47,9 @@ const extractName = (id: string) => {
   return { iconName, componentName };
 };
 
-export { getSvgString, extractName };
+const idToUseBlob = (id: string) => {
+  const useString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><use href="#${id}"></use></svg>`;
+  return new Blob([useString], { type: "image/svg+xml" });
+};
+
+export { getSvgString, extractName, idToUseBlob };
