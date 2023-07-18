@@ -1,7 +1,7 @@
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { head } from "lodash";
+import { useCallback, useEffect, useState } from "react";
 import EbayIconsSelect from "./EbayIconsSelect";
 import IconPreview from "./IconPreview";
-import { head } from "lodash";
 import { idToUseBlob } from "./utils/svg-utils";
 
 type Props = {
