@@ -41,9 +41,10 @@ const getSvgString = (
 
 const extractName = (id: string) => {
   const [, ...names] = id.split("-");
-  const iconName = names[names.length - 1].toLocaleUpperCase();
+  const name = names[names.length - 1] || "";
+  const iconName = name.toLocaleUpperCase();
   //Remove last char
-  const componentName = names.slice(0, -1).join(" ").toLocaleUpperCase();
+  const componentName = names.slice(0, -1).join(" ")?.toLocaleUpperCase();
   return { iconName, componentName };
 };
 
