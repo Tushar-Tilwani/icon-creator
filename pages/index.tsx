@@ -1,3 +1,4 @@
+import DownloadJSON from "@/components/DownloadJSON";
 import DownloadSvg from "@/components/DownloadSvg";
 import IconForm from "@/components/IconForm";
 import Icons from "@/components/Icons";
@@ -138,6 +139,9 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
           <h2 className="title">Icons</h2>
           <aside>
             <DownloadSvg />
+          </aside>
+          <aside>
+            <DownloadJSON />
           </aside>
         </header>
         <Icons svgString={svgString} handleIconClick={handleIconClick} />

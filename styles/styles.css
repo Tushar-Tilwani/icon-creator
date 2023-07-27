@@ -27,11 +27,16 @@
 
 .title {
   margin: 0;
+  flex: 1;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
+}
+
+.header aside {
+  margin: 0 10px;
 }
 
 .icon-dropdown {

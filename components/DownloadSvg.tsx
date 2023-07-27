@@ -29,7 +29,9 @@ const getZippedSvgs = async (svgContent: string) => {
   const parsedSvgContent = parse(svgContent);
   const symbols = (get(parsedSvgContent, "children[0].children") ??
     []) as ElementNode[];
-  const contents = symbols.map(symbolToContent);
+  const contents = symbols
+    .filter((symbol) => !symbol.children.includes("use"))
+    .map(symbolToContent);
   const zip = new JSZip();
   for (const [name, content] of contents) {
     zip.file(`${name}.svg`, content);
@@ -50,7 +52,7 @@ const DownloadSvg: React.FC<Props> = () => {
   };
   return (
     <button className="success" onClick={downloadSvg}>
-      Download
+      Download Icons
     </button>
   );
 };
