@@ -41,7 +41,7 @@ const getSvgString = (
 
 const extractName = (id: string) => {
   const [, ...names] = id.split("-");
-  const name = names[names.length - 1] || "";
+  const name = names[names.length - 1] || "<Invalid Class>";
   const iconName = name.toLocaleUpperCase();
   //Remove last char
   const componentName = names.slice(0, -1).join(" ")?.toLocaleUpperCase();

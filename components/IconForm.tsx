@@ -2,7 +2,7 @@ import { head } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import EbayIconsSelect from "./EbayIconsSelect";
 import IconPreview from "./IconPreview";
-import { idToUseBlob } from "./utils/svg-utils";
+import { extractName, idToUseBlob } from "./utils/svg-utils";
 
 type Props = {
   uploadToClient: (file: Blob) => void;
@@ -21,10 +21,12 @@ const IconForm: React.FC<Props> = ({
   imageId: baseImageId,
   loading,
 }) => {
-  const [imageId, setImageId] = useState<string | undefined>(baseImageId);
+  const [imageId, setImageId] = useState<string | undefined>(
+    extractName(baseImageId).iconName
+  );
 
   useEffect(() => {
-    setImageId(baseImageId);
+    setImageId(extractName(baseImageId).iconName);
   }, [baseImageId]);
 
   const uploadEbayIdToClient = useCallback(
@@ -48,7 +50,7 @@ const IconForm: React.FC<Props> = ({
           uploadToClient(head(event?.target?.files) as Blob);
         }}
       />
-      <label htmlFor="imageId">Image Id</label>
+      <label htmlFor="imageId">Image Icon Class</label>
       <input
         type="text"
         name="imageId"

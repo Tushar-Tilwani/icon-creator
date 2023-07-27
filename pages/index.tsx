@@ -91,7 +91,9 @@ const File: React.FC<Props> = ({ svgString: initialSvgString }) => {
 
     const body = new FormData();
     body.append("file", image);
-    body.append("id", id || imageId);
+    const finalImageId = id || imageId || '';
+    const fullImageId = `svg-at-a-glance-${finalImageId.toLocaleLowerCase()}`;
+    body.append("id", fullImageId);
     try {
       dispatch({ type: "UPLOAD_START", data: { id } });
       const response = await fetch("/api/svg", {
